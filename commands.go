@@ -20,7 +20,7 @@ func (c *commands) register(name string, f func(*state, command) error) {
 func (c *commands) run(s *state, cmd command) error {
 	handler, ok := c.handlers[cmd.name]
 	if !ok {
-		return errors.New("handler not found")
+		return errors.New("command not found")
 	}
 
 	err := handler(s, cmd)

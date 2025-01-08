@@ -5,6 +5,7 @@ import (
 	"os"
 
 	config "github.com/jovanadjuric/rss-aggregator/internal/config"
+	_ "github.com/lib/pq"
 )
 
 type state struct {

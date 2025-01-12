@@ -11,5 +11,8 @@ VALUES (
 -- name: GetUser :one
 SELECT id, created_at, updated_at, name FROM users WHERE name = $1 LIMIT 1;
 
+-- name: GetUsers :many
+SELECT id, created_at, updated_at, name FROM users ORDER BY created_at DESC;
+
 -- name: DeleteUsers :exec
 TRUNCATE TABLE users;

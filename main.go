@@ -1,14 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	config "github.com/jovanadjuric/rss-aggregator/internal/config"
+	"github.com/jovanadjuric/rss-aggregator/internal/database"
 	_ "github.com/lib/pq"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
@@ -30,14 +33,6 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	updatedCfg, err := config.Read()
-	if err != nil {
-		fmt.Println("error reading config file", err)
-	}
-
-	fmt.Println(*updatedCfg.Current_User_Name)
-	fmt.Println(*updatedCfg.Db_Url)
 }
 
 func initState() *state {
@@ -45,7 +40,15 @@ func initState() *state {
 	if err != nil {
 		fmt.Println("error reading config file", err)
 	}
-	s := state{cfg: &cfg}
+
+	db, err := sql.Open("postgres", *cfg.Db_Url)
+	if err != nil {
+		fmt.Println("error connecting to database", err)
+	}
+
+	dbQueries := database.New(db)
+
+	s := state{cfg: &cfg, db: dbQueries}
 
 	return &s
 }
@@ -56,6 +59,7 @@ func registerCommands() *commands {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	return cmds
 }

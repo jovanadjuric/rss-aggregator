@@ -29,7 +29,7 @@ func Read() (Config, error) {
 }
 
 func (c Config) SetUser(username string) error {
-	c.Current_User_Name = &username
+	*c.Current_User_Name = username
 
 	err := write(c)
 	if err != nil {

@@ -10,6 +10,8 @@ VALUES (
   )
   RETURNING *;
 
+-- name: GetFeeds :many
+SELECT f.id as f_id, f.created_at as f_created_at, f.updated_at as f_updated_at, f.name as f_name, f.url as f_url, u.name as u_name FROM feeds f LEFT JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC;
 
 -- name: DeleteFeeds :exec
 TRUNCATE TABLE feeds;

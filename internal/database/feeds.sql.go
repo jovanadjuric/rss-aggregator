@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,4 +63,47 @@ TRUNCATE TABLE feeds
 func (q *Queries) DeleteFeeds(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteFeeds)
 	return err
+}
+
+const getFeeds = `-- name: GetFeeds :many
+SELECT f.id as f_id, f.created_at as f_created_at, f.updated_at as f_updated_at, f.name as f_name, f.url as f_url, u.name as u_name FROM feeds f LEFT JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC
+`
+
+type GetFeedsRow struct {
+	FID        uuid.UUID
+	FCreatedAt time.Time
+	FUpdatedAt time.Time
+	FName      string
+	FUrl       string
+	UName      sql.NullString
+}
+
+func (q *Queries) GetFeeds(ctx context.Context) ([]GetFeedsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFeeds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeedsRow
+	for rows.Next() {
+		var i GetFeedsRow
+		if err := rows.Scan(
+			&i.FID,
+			&i.FCreatedAt,
+			&i.FUpdatedAt,
+			&i.FName,
+			&i.FUrl,
+			&i.UName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

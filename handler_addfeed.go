@@ -19,18 +19,25 @@ func handlerAddfeed(s *state, cmd command) error {
 		return errors.New("no user is currently logged in")
 	}
 
-	current_user, err := s.db.GetUser(context.Background(), *s.cfg.Current_User_Name)
+	currentUser, err := s.db.GetUser(context.Background(), *s.cfg.Current_User_Name)
 	if err != nil {
 		return err
 	}
 
-	uuid := uuid.New()
-	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{ID: uuid, CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: current_user.ID})
+	uid := uuid.New()
+	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: currentUser.ID})
+	if err != nil {
+		return err
+	}
+
+	uid = uuid.New()
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), FeedID: feed.ID, UserID: currentUser.ID})
 	if err != nil {
 		return err
 	}
 
 	fmt.Println(feed.ID)
+
 	fmt.Println(feed.Name)
 	fmt.Println(feed.Url)
 

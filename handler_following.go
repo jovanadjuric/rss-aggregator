@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/jovanadjuric/rss-aggregator/internal/database"
 )
 
-func handlerFollowing(s *state, cmd command) error {
-	currentUser, err := s.db.GetUser(context.Background(), *s.cfg.Current_User_Name)
-	if err != nil {
-		return err
-	}
-
-	feeds, err := s.db.GetFeedFollowsForUser(context.Background(), currentUser.ID)
+func handlerFollowing(s *state, cmd command, user database.User) error {
+	feeds, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
 	}

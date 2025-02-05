@@ -10,14 +10,9 @@ import (
 	"github.com/jovanadjuric/rss-aggregator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) == 0 {
 		return errors.New("follow handler expects a single argument, the url")
-	}
-
-	currentUser, err := s.db.GetUser(context.Background(), *s.cfg.Current_User_Name)
-	if err != nil {
-		return err
 	}
 
 	feed, err := s.db.GetFeed(context.Background(), cmd.args[0])
@@ -26,7 +21,7 @@ func handlerFollow(s *state, cmd command) error {
 	}
 
 	uuid := uuid.New()
-	follow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uuid, CreatedAt: time.Now(), UpdatedAt: time.Now(), UserID: currentUser.ID, FeedID: feed.FID})
+	follow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uuid, CreatedAt: time.Now(), UpdatedAt: time.Now(), UserID: user.ID, FeedID: feed.FID})
 	if err != nil {
 		return err
 	}

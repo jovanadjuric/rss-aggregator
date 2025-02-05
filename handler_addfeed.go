@@ -10,28 +10,19 @@ import (
 	"github.com/jovanadjuric/rss-aggregator/internal/database"
 )
 
-func handlerAddfeed(s *state, cmd command) error {
+func handlerAddfeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return errors.New("addfeed handler expects two arguments, name and url")
 	}
 
-	if s.cfg.Current_User_Name == nil {
-		return errors.New("no user is currently logged in")
-	}
-
-	currentUser, err := s.db.GetUser(context.Background(), *s.cfg.Current_User_Name)
-	if err != nil {
-		return err
-	}
-
 	uid := uuid.New()
-	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: currentUser.ID})
+	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: user.ID})
 	if err != nil {
 		return err
 	}
 
 	uid = uuid.New()
-	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), FeedID: feed.ID, UserID: currentUser.ID})
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now(), FeedID: feed.ID, UserID: user.ID})
 	if err != nil {
 		return err
 	}

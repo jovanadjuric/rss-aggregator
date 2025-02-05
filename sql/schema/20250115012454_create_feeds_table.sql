@@ -10,4 +10,6 @@ CREATE TABLE feeds (
 );
 
 -- +goose Down
+ALTER TABLE feeds
+  DROP CONSTRAINT IF EXISTS fk_user;
 DROP TABLE feeds;

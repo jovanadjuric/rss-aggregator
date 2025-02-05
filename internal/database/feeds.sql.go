@@ -57,12 +57,39 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 }
 
 const deleteFeeds = `-- name: DeleteFeeds :exec
-TRUNCATE TABLE feeds
+DELETE FROM feeds
 `
 
 func (q *Queries) DeleteFeeds(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteFeeds)
 	return err
+}
+
+const getFeed = `-- name: GetFeed :one
+SELECT f.id as f_id, f.created_at as f_created_at, f.updated_at as f_updated_at, f.name as f_name, f.url as f_url, u.name as u_name FROM feeds f LEFT JOIN users u ON u.id = f.user_id WHERE f.url = $1 LIMIT 1
+`
+
+type GetFeedRow struct {
+	FID        uuid.UUID
+	FCreatedAt time.Time
+	FUpdatedAt time.Time
+	FName      string
+	FUrl       string
+	UName      sql.NullString
+}
+
+func (q *Queries) GetFeed(ctx context.Context, url string) (GetFeedRow, error) {
+	row := q.db.QueryRowContext(ctx, getFeed, url)
+	var i GetFeedRow
+	err := row.Scan(
+		&i.FID,
+		&i.FCreatedAt,
+		&i.FUpdatedAt,
+		&i.FName,
+		&i.FUrl,
+		&i.UName,
+	)
+	return i, err
 }
 
 const getFeeds = `-- name: GetFeeds :many

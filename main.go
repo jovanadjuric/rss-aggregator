@@ -68,6 +68,7 @@ func registerCommands() *commands {
 	cmds.register("follow", middlewareLoggedIn(handlerFollow))
 	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	cmds.register("following", middlewareLoggedIn(handlerFollowing))
+	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
 
 	return cmds
 }
